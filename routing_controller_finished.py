@@ -38,7 +38,7 @@ mytimer = None
 OWD1=0.0
 OWD2=0.0
 delay=0
-readiness=[False,False,False,False,False]
+
 
 ### apropos Intentu
 active_intent_flows=[] ### aktywne flowy
@@ -47,6 +47,10 @@ class Intent(object):
                 self.h1=h1
                 self.h2=h2
                 self.demand=demand
+	def __eq__(self, other):
+        	if (isinstance(other, Intent)):
+            		return self.h1 == other.h1 and self.h2 == other.h2 and self.demand == other.demand
+        	return False
 
 class GetIntent(Event):
         def __init__(self,intent):
@@ -64,10 +68,37 @@ class Flow(object):
 		self.pair_switch=pair_switch
 		self.timeout=timeout # timeout w sekundach
 		self.start_time=time.time()
+	def __eq__(self, other):
+        	if (isinstance(other, Flow)):
+            		return self.intent == other.intent and self.pair_switch == other.pair_switch
+        	return False
 #### handler GetIntent
 s1s2_flows=[] ## obiekty klasy Flow z s1s2
 s1s3_flows=[]
 s1s4_flows=[]
+def remove_from_lists(flow):
+	global s1s2_flows,s1s3_flows,s1s4_flows
+	if flow.pair_switch == 's1s2':
+		for f in s1s2_flows:
+			if f == flow:
+				s1s2_flows.remove(f)
+	elif flow.pair_switch == 's1s3':
+		for f in s1s3_flows:
+			if f==flow:
+				s1s3_flows.remove(f)
+	elif flow.pair_switch == 's1s4':
+		for f in s1s4_flows:
+			if f== flow:
+				s1s4_flows.remove(f)
+def delete_old_flows():
+	global active_intent_flows
+	while True:
+		for flow in active_intent_flows:
+			diff=time.time()-flow.start_time
+			if diff >= flow.timeout:
+				active_intent_flows.remove(flow)
+				remove_from_lists(flow)
+
 
 def handle_intent (intent, possible_flows,no_flows): ###ta funkcja ma na celu umieszczenie/zmodyfikowanie aktywny flowow bo nowy intent
 # sie pojawil ktory wiemy ktorym laczem zestawic-> robi tez shuffle reszty flowow 
@@ -81,6 +112,8 @@ def handle_intent (intent, possible_flows,no_flows): ###ta funkcja ma na celu um
 					minimum_no_flows=min(no_flows)
 					index_min_flows=no_flows.index(minimum_no_flows)
 					active_intent_flows.remove(flow) ## usun ten flow
+					## usun ich z s1s2_flows itd
+					remove_from_lists(flow)
 					new_flow=Flow(intent,180,"") ## zastap go nowym
 					if index_min_flows==0:
 						new_flow.pair_switch='s1s2'
@@ -795,3 +828,4 @@ def launch ():
   core.openflow.addListenerByName("ConnectionDown", _handle_ConnectionDown)
   event_handler.addListener(GetIntent,_handler_GetIntent)
   thread.start_new_thread(test,())
+  thread.start_new_thread(delete_old_flows,())
