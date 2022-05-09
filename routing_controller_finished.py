@@ -222,6 +222,59 @@ def _handler_GetIntent(event):
 
 event_handler=EventHandler()
 
+#######Funkcja do okresowego badania QoS, nie wiem czy dziala ale jest prototyp
+##[MK]
+def _check_conditions():
+     global active_intent_flows,delay,s1_dpid,s1s2_src,s1s2_dst,s1s3_src,s1s3_dst,s1s4_src,s1s4_dst,src_dpid,dst_dpid
+     ## measure s1s2
+     for flow in active_intent_flows:
+	if flow.pair_switch == "s1s2":
+		src_dpid=s1s2_src
+		dst_dpid=s1s2_dst
+		if src_dpid<>0 and dst_dpid<>0:
+			mytimer=Timer(2, _timer_func, recurring=True)
+		while delay ==0:
+			continue
+		mytimer.cancel()
+		if flow.intent.demand < delay:
+			#Jesli QoS nie jest juz spelniony to trzeba wywalic flow i znowu zestawic
+			intent1=flow.intent
+			active_intent_flows.remove(flow)
+			remove_from_lists(flow)
+			event_handler.raiseEvent(GetIntent,intent1)		
+	elif flow.pair_switch == "s1s3":
+		src_dpid=s1s3_src
+		dst_dpid=s1s3_dst
+		if src_dpid<>0 and dst_dpid<>0:
+			mytimer=Timer(2, _timer_func, recurring=True)
+		while delay ==0:
+			continue
+		mytimer.cancel()
+		if flow.intent.demand < delay:
+			#Jesli QoS nie jest juz spelniony to trzeba wywalic flow i znowu zestawic
+			intent1=flow.intent
+			active_intent_flows.remove(flow)
+			remove_from_lists(flow)
+			event_handler.raiseEvent(GetIntent,intent1)
+	else:
+		src_dpid=s1s4_src
+		dst_dpid=s1s4_dst
+		if src_dpid<>0 and dst_dpid<>0:
+			mytimer=Timer(2, _timer_func, recurring=True)
+		while delay ==0:
+			continue
+		mytimer.cancel()
+		if flow.intent.demand < delay:
+			#Jesli QoS nie jest juz spelniony to trzeba wywalic flow i znowu zestawic
+			intent1=flow.intent
+			active_intent_flows.remove(flow)
+			remove_from_lists(flow)
+			event_handler.raiseEvent(GetIntent,intent1)
+	delay=0
+
+
+
+
 
 #### KONIEC NAPISANEJ CZESCI
 
@@ -815,6 +868,9 @@ def test():
   ## obsluga intentu
   event_handler.raiseEvent(GetIntent,intent)
   event_handler.raiseEvent(GetIntent,intent1)
+##[MK]
+  time.sleep(3)
+  checktimer=Timer(5, _check_conditions, recurring=True)
 def launch ():
   global start_time
   start_time = time.time() * 1000*10 # factor *10 applied to increase the accuracy for short delays (capture tenths of ms)
