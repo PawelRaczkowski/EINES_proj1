@@ -103,22 +103,18 @@ def remove_from_lists(flow):
                                 s1s4_flows.remove(f)
 
 
-def handle_intent (intent, possible_flows,no_flows): ###ta funkcja ma na celu umieszczenie/zmodyfikowanie aktywny flowow bo nowy intent
-# sie pojawil ktory wiemy ktorym laczem zestawic-> robi tez shuffle reszty flowow
+def handle_intent (intent, possible_flows,no_flows):
         global active_intent_flows
-        ### sprawdz czy intent nie jest taki sam tylko demand inny
         for flow in active_intent_flows:
                 if intent.h1==flow.intent.h1 and intent.h2==flow.intent.h2:
-                        if intent.demand < flow.intent.demand: ## jezeli wymagane jest nagle mniejsze opoznienie to trzeba zmienic
-                                if flow.intent.pair_switch not in possible_flows: ##jezeli istniejacy flow nie jest
-## w zidentyfikowany mozliwych flowach to trzeba wybrac ktorys z possible_flows (to lacze gdzie jest mniej flowow)
+                        if intent.demand < flow.intent.demand:
+                                if flow.intent.pair_switch not in possible_flows:
                                         minimum_no_flows=min(no_flows)
                                         index_min_flows=no_flows.index(minimum_no_flows)
-                                        active_intent_flows.remove(flow) ## usun ten flow
-                                        ## usun ich z s1s2_flows itd
+                                        active_intent_flows.remove(flow)
                                         remove_from_lists(flow)
 					delete_flow_from_switch(flow.intent)
-                                        new_flow=Flow(intent,180,"") ## zastap go nowym
+                                        new_flow=Flow(intent,180,"")
                                         if index_min_flows==0:
                                                 new_flow.pair_switch='s1s2'
                                                 s1s2_flows.append(new_flow)
@@ -129,7 +125,6 @@ def handle_intent (intent, possible_flows,no_flows): ###ta funkcja ma na celu um
                                                 new_flow.pair_switch='s1s4'
                                                 s1s4_flows.append(new_flow)
                                         active_intent_flows.append(new_flow)
-					#send_info_to_switch(new_flow,flow.intent)
                                         return new_flow
                         else:
                                 return None
