@@ -670,6 +670,10 @@ def _handle_PacketIn(event):
      msg.match.nw_dst = "10.0.0.3"
      msg.actions.append(of.ofp_action_output(port = 3))
      event.connection.send(msg)
+     
+     if a and (a.protodst=="10.0.0.4" or a.protodst=="10.0.0.5" or a.protodst=="10.0.0.6"):
+       intent1=Intent('10.0.0.1',a.protodst,sys.maxint)
+       event_handler.raiseEvent(GetIntent,intent1)
  ### zakomentowane bo to ma routing robic
      #msg = of.ofp_flow_mod()
      #msg.priority =100
