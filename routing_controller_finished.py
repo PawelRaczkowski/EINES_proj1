@@ -66,7 +66,7 @@ class Flow(object):
         def __init__(self,intent,timeout,pair_switch):
                 self.intent=intent
                 self.pair_switch=pair_switch
-                self.timeout=timeout # timeout w sekundach
+                self.timeout=timeout
                 self.start_time=time.time()
         def __eq__(self, other):
                 if (isinstance(other, Flow)):
