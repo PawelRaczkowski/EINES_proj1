@@ -606,7 +606,7 @@ def _handle_PacketIn(event):
   # Below, set the default/initial routing rules for all switches and ports.
   # All rules are set up in a given switch on packet_in event received from the switch which means no flow entry has been found in the flow table.
   # This setting up may happen either at the very first pactet being sent or after flow entry expirationn inn the switch
-
+  print "PACKET IN"
   if event.connection.dpid==s1_dpid:
      a=packet.find('arp')                                       # If packet object does not encapsulate a packet of the type indicated, find() returns None
      if a and a.protodst=="10.0.0.4":
@@ -666,9 +666,16 @@ def _handle_PacketIn(event):
      msg.actions.append(of.ofp_action_output(port = 3))
      event.connection.send(msg)
      
-     if a and (a.protodst=="10.0.0.4" or a.protodst=="10.0.0.5" or a.protodst=="10.0.0.6"):
-       intent1=Intent('10.0.0.1',a.protodst,sys.maxint)
-       event_handler.raiseEvent(GetIntent,intent1)
+     for k in ['10.0.0.4','10.0.0.5','10.0.0.6']:
+       checker = False
+       for m in active_intent_flows:
+         if k == m.intent.h2:
+           checker = True
+       if not checker:
+         int1 = Intent('10.0.0.1',k,sys.maxint)
+         event_handler.raiseEvent(GetIntent,intent)
+	   
+       
  ### zakomentowane bo to ma routing robic
      #msg = of.ofp_flow_mod()
      #msg.priority =100
