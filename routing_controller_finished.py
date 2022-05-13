@@ -66,7 +66,7 @@ class Flow(object):
         def __init__(self,intent,timeout,pair_switch):
                 self.intent=intent
                 self.pair_switch=pair_switch
-                self.timeout=timeout
+                self.timeout=timeout # timeout w sekundach
                 self.start_time=time.time()
         def __eq__(self, other):
                 if (isinstance(other, Flow)):
@@ -103,18 +103,22 @@ def remove_from_lists(flow):
                                 s1s4_flows.remove(f)
 
 
-def handle_intent (intent, possible_flows,no_flows):
+def handle_intent (intent, possible_flows,no_flows): ###ta funkcja ma na celu umieszczenie/zmodyfikowanie aktywny flowow bo nowy intent
+# sie pojawil ktory wiemy ktorym laczem zestawic-> robi tez shuffle reszty flowow
         global active_intent_flows
+        ### sprawdz czy intent nie jest taki sam tylko demand inny
         for flow in active_intent_flows:
                 if intent.h1==flow.intent.h1 and intent.h2==flow.intent.h2:
-                        if intent.demand < flow.intent.demand:
-                                if flow.intent.pair_switch not in possible_flows:
+                        if intent.demand < flow.intent.demand: ## jezeli wymagane jest nagle mniejsze opoznienie to trzeba zmienic
+                                if flow.intent.pair_switch not in possible_flows: ##jezeli istniejacy flow nie jest
+## w zidentyfikowany mozliwych flowach to trzeba wybrac ktorys z possible_flows (to lacze gdzie jest mniej flowow)
                                         minimum_no_flows=min(no_flows)
                                         index_min_flows=no_flows.index(minimum_no_flows)
-                                        active_intent_flows.remove(flow)
+                                        active_intent_flows.remove(flow) ## usun ten flow
+                                        ## usun ich z s1s2_flows itd
                                         remove_from_lists(flow)
 					delete_flow_from_switch(flow.intent)
-                                        new_flow=Flow(intent,180,"")
+                                        new_flow=Flow(intent,180,"") ## zastap go nowym
                                         if index_min_flows==0:
                                                 new_flow.pair_switch='s1s2'
                                                 s1s2_flows.append(new_flow)
@@ -125,6 +129,7 @@ def handle_intent (intent, possible_flows,no_flows):
                                                 new_flow.pair_switch='s1s4'
                                                 s1s4_flows.append(new_flow)
                                         active_intent_flows.append(new_flow)
+					#send_info_to_switch(new_flow,flow.intent)
                                         return new_flow
                         else:
                                 return None
@@ -236,7 +241,7 @@ def _handler_GetIntent(event):
                         msg.actions.append(of.ofp_action_output(port = 5))
                 else:
                         msg.actions.append(of.ofp_action_output(port = 6))
-        core.openflow.getConnection(s1_dpid).send(msg)
+                core.openflow.getConnection(s1_dpid).send(msg)
 
 event_handler=EventHandler()
 def get_current_array_flows():
@@ -579,6 +584,19 @@ def _handle_ConnectionDown (event):
   global mytimer
   print "ConnectionDown: ", dpidToStr(event.connection.dpid)
   mytimer.cancel()
+
+def fill_flows():
+  for k in ['10.0.0.4','10.0.0.5','10.0.0.6']:
+    checker = False
+    for m in intents:
+      if k == m.h2:
+        checker=True
+    if checker==False:
+      print "Technical intent for: ", k
+      int1=Intent('10.0.0.1',k,9999)
+      event_handler.raiseEvent(GetIntent,int1)
+
+
 def _handle_PacketIn(event):
   ### DELAY
   global start_time, OWD1, OWD2,delay
@@ -665,17 +683,8 @@ def _handle_PacketIn(event):
      msg.match.nw_dst = "10.0.0.3"
      msg.actions.append(of.ofp_action_output(port = 3))
      event.connection.send(msg)
-     
-     for k in ['10.0.0.4','10.0.0.5','10.0.0.6']:
-       checker = False
-       for m in active_intent_flows:
-         if k == m.intent.h2:
-           checker = True
-       if not checker:
-         int1 = Intent('10.0.0.1',k,sys.maxint)
-         event_handler.raiseEvent(GetIntent,intent)
-	   
-       
+
+     thread.start_new_thread(fill_flows,())
  ### zakomentowane bo to ma routing robic
      #msg = of.ofp_flow_mod()
      #msg.priority =100
