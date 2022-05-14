@@ -77,7 +77,7 @@ s1s2_flows=[] ## obiekty klasy Flow z s1s2
 s1s3_flows=[]
 s1s4_flows=[]
 ### for testing purposes
-intents=[Intent('10.0.0.1','10.0.0.4',50), Intent('10.0.0.1','10.0.0.5',200)]
+intents=[Intent('10.0.0.1','10.0.0.4',100), Intent('10.0.0.1','10.0.0.5',200)]
 def delete_flow_from_switch(intent):
 	global s1_dpid
         msg=of.ofp_flow_mod()
