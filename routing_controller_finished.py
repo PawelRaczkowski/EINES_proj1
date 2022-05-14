@@ -281,7 +281,7 @@ def _check_conditions():
 			print "Check conditions: link s1s2 delay=", delay, " and required delay=", flow.intent.demand
                 	if flow.intent.demand < delay:
                         #Jesli QoS nie jest juz spelniony to trzeba wywalic flow i znowu zestawic
-                        	print 'Zmieniamy QoS s1s2'
+                        	print 'Changed QoS s1s2'
 				intent1=flow.intent
                         	active_intent_flows.remove(flow)
                         	remove_from_lists(flow)
@@ -298,7 +298,7 @@ def _check_conditions():
 			print "Check conditions: link s1s3 delay=", delay, " and required delay=", flow.intent.demand
                 	if flow.intent.demand < delay:
                         #Jesli QoS nie jest juz spelniony to trzeba wywalic flow i znowu zestawic
-                        	print 'Zmienianmy QoS s1s3'
+                        	print 'Changed QoS s1s3'
 				intent1=flow.intent
                         	active_intent_flows.remove(flow)
                         	remove_from_lists(flow)
@@ -315,7 +315,7 @@ def _check_conditions():
 			print "Check conditions: link s1s4 delay: ", delay, " and required delay=", flow.intent.demand
                 	if flow.intent.demand < delay:
                         #Jesli QoS nie jest juz spelniony to trzeba wywalic flow i znowu zestawic
-                        	print 'Zmieniony QoS s1s4'
+                        	print 'Changed QoS s1s4'
 				intent1=flow.intent
                        		active_intent_flows.remove(flow)
                         	remove_from_lists(flow)
