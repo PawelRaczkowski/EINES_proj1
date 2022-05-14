@@ -328,7 +328,6 @@ def _check_conditions():
 
 
 
-#### KONIEC NAPISANEJ CZESCI
 
 class myproto(packet_base):
    #My Protocol packet struct
@@ -429,57 +428,6 @@ def _timer_func ():
 
 
 
-  #### DELAY
-  #global s1_dpid, s2_dpid, s3_dpid, s4_dpid, s5_dpid,turn
-  #core.openflow.getConnection(s1_dpid).send(of.ofp_stats_request(body=of.ofp_port_stats_request()))
-  #core.openflow.getConnection(s2_dpid).send(of.ofp_stats_request(body=of.ofp_port_stats_request()))
-  #core.openflow.getConnection(s3_dpid).send(of.ofp_stats_request(body=of.ofp_port_stats_request()))
-  #core.openflow.getConnection(s4_dpid).send(of.ofp_stats_request(body=of.ofp_port_stats_request()))
-  #print getTheTime(), "sent the port stats request to s1_dpid"
-
-  # below, routing in s1 towards h4 (IP=10.0.0.4) is set according to the value of the variable turn
-  # turn controls the round robin operation
-  # turn=0/1/2 => route through s2/s3/s4, respectively
-
-  #if turn==0:
-   #   msg = of.ofp_flow_mod()
-    #  msg.command=of.OFPFC_MODIFY_STRICT
-     # msg.priority =100
-      #msg.idle_timeout = 0
-      #msg.hard_timeout = 0
-      #msg.match.dl_type = 0x0800
-      #msg.match.nw_dst = "10.0.0.4"
-      #msg.actions.append(of.ofp_action_output(port = 5))
-      #core.openflow.getConnection(s1_dpid).send(msg)
-      #turn=1
-      #return
-
-  #if turn==1:
-   #   msg = of.ofp_flow_mod()
-    #  msg.command=of.OFPFC_MODIFY_STRICT
-     # msg.priority =100
-   #   msg.idle_timeout = 0
-  #    msg.hard_timeout = 0
-    #  msg.match.dl_type = 0x0800
-     # msg.match.nw_dst = "10.0.0.4"
-      #msg.actions.append(of.ofp_action_output(port = 6))
-      #core.openflow.getConnection(s1_dpid).send(msg)
-      #turn=2
-      #return
-
-  #if turn==2:
-   #   msg = of.ofp_flow_mod()
-    #  msg.command=of.OFPFC_MODIFY_STRICT
-    #  msg.priority =100
-     # msg.idle_timeout = 0
-     # msg.hard_timeout = 0
-      #msg.match.dl_type = 0x0800
-      #msg.match.nw_dst = "10.0.0.4"
-      #msg.actions.append(of.ofp_action_output(port = 4))
-      #core.openflow.getConnection(s1_dpid).send(msg)
-      #turn=0
-      #return
-
 def _handle_portstats_received (event):
   #### DELAY
   global start_time, sent_time1, sent_time2, received_time1, received_time2, src_dpid, dst_dpid, OWD1, OWD2
@@ -571,9 +519,7 @@ def _handle_ConnectionUp (event):
     elif m.name == "s5-eth1":
       s5_dpid = event.connection.dpid
 
-  # start 1-second recurring loop timer for round-robin routing changes; _timer_func is to be called on timer expiration to change the flow entry in s1
-  #if s1_dpid<>0 and s2_dpid<>0 and s3_dpid<>0 and s4_dpid<>0 and s5_dpid<>0:
-   # Timer(1, _timer_func, recurring=True)
+
 def _handle_ConnectionDown (event):
   #Handle connection down - stop the timer for sending the probes
   global mytimer
@@ -679,34 +625,8 @@ def _handle_PacketIn(event):
      msg.actions.append(of.ofp_action_output(port = 3))
      event.connection.send(msg)
 
+     #Ruch do h4,h5,h6 bez intentow
      thread.start_new_thread(fill_flows,())
- ### zakomentowane bo to ma routing robic
-     #msg = of.ofp_flow_mod()
-     #msg.priority =100
-     #msg.idle_timeout = 0
-     #msg.hard_timeout = 1
-     #msg.match.dl_type = 0x0800
-     #msg.match.nw_dst = "10.0.0.4"
-     #msg.actions.append(of.ofp_action_output(port = 4))
-     #event.connection.send(msg)
-
-     #msg = of.ofp_flow_mod()
-     #msg.priority =100
-     #msg.idle_timeout = 0
-     #msg.hard_timeout = 0
-     #msg.match.dl_type = 0x0800
-     #msg.match.nw_dst = "10.0.0.5"
-     #msg.actions.append(of.ofp_action_output(port = 5))
-     #event.connection.send(msg)
-
-     #msg = of.ofp_flow_mod()
-     #msg.priority =100
-     #msg.idle_timeout = 0
-     #msg.hard_timeout = 0
-     #msg.match.dl_type = 0x0800
-     #msg.match.nw_dst = "10.0.0.6"
-     #msg.actions.append(of.ofp_action_output(port = 6))
-     #event.connection.send(msg)
 
   elif event.connection.dpid==s2_dpid:
      msg = of.ofp_flow_mod()
@@ -930,7 +850,6 @@ def test():
   ### tutaj tworzenie intentow
   for intent in intents:
   	event_handler.raiseEvent(GetIntent,intent)
-##[MK]
   thread.start_new_thread(_check_conditions,())
 def launch ():
   global start_time
