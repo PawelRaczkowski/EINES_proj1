@@ -565,7 +565,7 @@ def _handle_PacketIn(event):
   # Below, set the default/initial routing rules for all switches and ports.
   # All rules are set up in a given switch on packet_in event received from the switch which means no flow entry has been found in the flow table.
   # This setting up may happen either at the very first pactet being sent or after flow entry expirationn inn the switch
-  print "PACKET IN"
+  
   if event.connection.dpid==s1_dpid:
      a=packet.find('arp')                                       # If packet object does not encapsulate a packet of the type indicated, find() returns None
      if a and a.protodst=="10.0.0.4":
