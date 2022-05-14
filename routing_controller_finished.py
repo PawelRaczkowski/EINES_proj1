@@ -250,8 +250,7 @@ def get_current_array_flows():
 	for flow in active_intent_flows:
 		result+=flow.pair_switch+" "
 	return result
-#######Funkcja do okresowego badania QoS, nie wiem czy dziala ale jest prototyp
-##[MK]
+
 def _check_conditions():
      global intents,active_intent_flows,delay,s1_dpid,s1s2_src,s1s2_dst,s1s3_src,s1s3_dst,s1s4_src,s1s4_dst,src_dpid,dst_dpid
      print "Checking conditions... "
@@ -264,10 +263,6 @@ def _check_conditions():
                                 print 'Refresh of flow: ', flow.pair_switch
                                 flow.start_time=time.time()
 				intent1=flow.intent
-                               # active_intent_flows.remove(flow)
-                                #remove_from_lists(flow)
-                                #event_handler.raiseEvent(GetIntent,intent1)
-				#delete_flow_from_switch(intent1)
 				send_info_to_switch(flow,intent1)
      ## measure s1s2
 	if len(active_intent_flows)>0:
